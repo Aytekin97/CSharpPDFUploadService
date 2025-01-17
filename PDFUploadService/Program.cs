@@ -1,15 +1,21 @@
-using PDFUploadService.Services;
+using DotNetEnv;
 using PDFUploadService.Models;
+using PDFUploadService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add configuration from app.settings.json and environment variables
-builder.Configuration.AddJsonFile("appsettings.json", optional: false).AddEnvironmentVariables();
+// Load environment variables from .env file for local development
+DotNetEnv.Env.Load();
 
-// Register strongly-typed settings
+// Add configuration from appsettings.json and environment variables
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddEnvironmentVariables();
+
+// Register strongly-typed settings for AwsSettings
 builder.Services.Configure<AwsSettings>(builder.Configuration.GetSection("AwsSettings"));
 
-// Add AWS S3 service
+// Register AWS S3 service
 builder.Services.AddScoped<IS3Service, S3Service>();
 
 // Add controllers
@@ -30,13 +36,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Use HTTPS redirection if needed
+// Use HTTPS redirection
 app.UseHttpsRedirection();
 
-// Use CORS policy
+// Use the configured CORS policy
 app.UseCors("CorsPolicy");
 
-// Map Controllers
+// Map controllers
 app.MapControllers();
 
 app.Run();

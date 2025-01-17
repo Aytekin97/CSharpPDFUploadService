@@ -19,8 +19,19 @@ namespace PDFUploadService.Services
         public S3Service(IOptions<AwsSettings> awsOptions)
         {
             var settings = awsOptions.Value;
-            // Initialize the AmazonS3Client with credentials from settings
-            _s3Client = new AmazonS3Client(settings.AWSAccessKey, settings.AWSSecretKey, Amazon.RegionEndpoint.USEast1);
+
+            // Retrieve credentials securely from environment variables
+            var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+            var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+
+            // Throw an exception if the credentials are missing
+            if (string.IsNullOrEmpty(accessKey) || string.IsNullOrEmpty(secretKey))
+            {
+                throw new Exception("AWS credentials are not set in the environment variables.");
+            }
+
+            // Initialize the AmazonS3Client with credentials from environment variables
+            _s3Client = new AmazonS3Client(accessKey, secretKey, Amazon.RegionEndpoint.USEast1);
         }
 
         public async Task<(bool Exists, string FileUrl)> CheckFileExistsAsync(string bucketName, string key)

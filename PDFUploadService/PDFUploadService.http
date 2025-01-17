@@ -1,0 +1,6 @@
+@PDFUploadService_HostAddress = http://localhost:5054
+
+GET {{PDFUploadService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
